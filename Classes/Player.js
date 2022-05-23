@@ -1,4 +1,5 @@
 const Api = require('./Api');
+const Game = require('./Game');
 let api = new Api();
 
 class Player {
@@ -13,7 +14,7 @@ class Player {
     return this.username;
   }
 
-  getUuid() {
+  getUUID() {
     return this.uuid;
   }
 
@@ -32,10 +33,36 @@ class Player {
   async getFriends() {
     let playerData = await api.get({
       base_url: process.env.BASE_URL,
-      endpoint: `/friends?key=${this.requestKey}&uuid=${this.getUuid()}`,
+      endpoint: `/friends?key=${this.requestKey}&uuid=${this.getUUID()}`,
     });
 
     return playerData.records;
+  }
+
+  async getRecentGames() {
+    let playerData = await api.get({
+      base_url: process.env.BASE_URL,
+      endpoint: `/recentgames?key=${this.requestKey}&uuid=${this.getUUID()}`,
+    });
+
+    var games = [];
+
+    playerData.games.forEach(game => {
+      let newGame = new Game(game);
+
+      games.push(newGame);
+    });
+
+    return games;
+  }
+
+  async getStatus() {
+    let playerData = await api.get({
+      base_url: process.env.BASE_URL,
+      endpoint: `/status?key=${this.requestKey}&uuid=${this.getUUID()}`,
+    });
+
+    return playerData.session;
   }
 }
 

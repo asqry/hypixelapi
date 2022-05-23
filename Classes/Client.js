@@ -10,6 +10,10 @@ class Client {
     this.apiKey = props.apiKey;
   }
 
+  get key() {
+    return this.apiKey;
+  }
+
   async validateKey() {
     api
       .get({
@@ -18,13 +22,13 @@ class Client {
       })
       .then(res => {
         console.log(
-          chalk.green.bold(`Looks like your key `) +
-            chalk.green.underline(res.record.key) +
+          chalk.green.bold(`Looks like your API key `) +
+            chalk.bgGreen.black.bold(res.record.key) +
             chalk.green.bold(` is valid.`)
         );
       })
       .catch(err => {
-        console.error(chalk.red(err.response.data.cause));
+        console.error(chalk.red.bold(err.response.data.cause));
       });
   }
 
@@ -34,13 +38,22 @@ class Client {
       endpoint: `/player?key=${this.apiKey}&uuid=${uuid}`,
     });
 
-    if (!player || player == null)
-      return console.error(chalk.red('An invalid UUID was provided.'));
-
-    return new Player(
-      { uuid: player.uuid, username: player.displayname, apiKey: this.apiKey },
-      player
-    );
+    if (player == null) {
+      console.error(
+        chalk.red.bold(
+          'An invalid UUID was provided, or that player has never joined the server.'
+        )
+      );
+    } else {
+      return new Player(
+        {
+          uuid: player.uuid,
+          username: player.displayname,
+          apiKey: this.apiKey,
+        },
+        player
+      );
+    }
   }
 
   async getPlayerByUsername(username) {
@@ -50,7 +63,7 @@ class Client {
         endpoint: `/users/profiles/minecraft/${username}`,
       })
       .catch(err => {
-        console.log(err);
+        console.error(err);
       });
 
     return this.getPlayerByUuid(playerData.id);

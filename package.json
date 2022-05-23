@@ -1,0 +1,24 @@
+{
+  "name": "hypixelapi",
+  "version": "1.0.0",
+  "description": "A wrapper for the Hypixel player API",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/asqry/hypixelapi.git"
+  },
+  "author": "rugs",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/asqry/hypixelapi/issues"
+  },
+  "homepage": "https://github.com/asqry/hypixelapi#readme",
+  "dependencies": {
+    "axios": "^0.27.2",
+    "chalk": "^4.1.2",
+    "dotenv": "^16.0.1"
+  }
+}

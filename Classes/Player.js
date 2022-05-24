@@ -9,6 +9,7 @@ class Player {
     this.uuid = data.uuid;
     this.data = data;
     this.requestKey = data.apiKey;
+    this.newPackageRank = data.player.newPackageRank || 'NONE';
     this.specialPrefix = data.prefix || 'NONE';
     this.monthlyRankColor = data.monthlyRankColor;
     this.karma = data.karma;
@@ -52,7 +53,7 @@ class Player {
   }
 
   getPaidRank() {
-    return this.data.newPackageRank || 'NONE';
+    return this.newPackageRank;
   }
 
   isPlusPlus() {

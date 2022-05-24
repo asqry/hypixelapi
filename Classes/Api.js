@@ -5,7 +5,10 @@ class Api {
   constructor(props) {}
 
   async get(request) {
-    let url = request.base_url + request.endpoint;
+    let base_url = request.mojang
+      ? 'https://api.mojang.com'
+      : 'https://api.hypixel.net';
+    let url = base_url + request.endpoint;
 
     return new Promise((resolve, reject) => {
       axios

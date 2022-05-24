@@ -5,6 +5,8 @@ const Guild = require('./Guild');
 
 let api = new Api();
 
+const { error } = new (require('./Util'))();
+
 var count = 0;
 
 class Client {
@@ -31,25 +33,28 @@ class Client {
         );
       })
       .catch(err => {
-        throw new Error(chalk.red.bold(err.response.data.cause));
+        return error(err.response.data.cause);
       });
   }
 
   // players
 
   async getPlayerByUuid(uuid) {
-    let playerData = await api
-      .get({
-        base_url: process.env.BASE_URL,
-        endpoint: `/player?key=${this.apiKey}&uuid=${uuid}`,
-      })
-      .catch(err => {
-        throw new Error(
-          chalk.red.bold(
+    let playerData =
+      (await api
+        .get({
+          base_url: process.env.BASE_URL,
+          endpoint: `/player?key=${this.apiKey}&uuid=${uuid}`,
+        })
+        .catch(err => {
+          error(
             'An invalid UUID was provided, or that player has never joined the server.'
-          )
-        );
-      });
+          );
+
+          return null;
+        })) || null;
+
+    if (playerData == null) return error('Invalid UUID provided.');
 
     return new Player({
       ...playerData,
@@ -60,14 +65,17 @@ class Client {
   }
 
   async getPlayerByUsername(username) {
-    let playerData = await api
-      .get({
-        endpoint: `/users/profiles/minecraft/${username.trim()}`,
-        mojang: true,
-      })
-      .catch(err => {
-        throw new Error(err);
-      });
+    let playerData =
+      (await api
+        .get({
+          endpoint: `/users/profiles/minecraft/${username.trim()}`,
+          mojang: true,
+        })
+        .catch(err => {
+          return null;
+        })) || null;
+
+    if (playerData == null) return error('Invalid username provided.');
 
     return this.getPlayerByUuid(playerData.id);
   }
@@ -75,18 +83,23 @@ class Client {
   // guilds
 
   async getGuildByPlayerUuid(uuid) {
-    let guildData = await api
-      .get({
-        base_url: process.env.BASE_URL,
-        endpoint: `/guild?key=${this.apiKey}&player=${uuid}`,
-      })
-      .catch(() => {
-        throw new Error(
-          chalk.red.bold(
+    let guildData =
+      (await api
+        .get({
+          base_url: process.env.BASE_URL,
+          endpoint: `/guild?key=${this.apiKey}&player=${uuid}`,
+        })
+        .catch(() => {
+          error(
             'An invalid UUID was provided, or that player is not in a guild.'
-          )
-        );
-      });
+          );
+          return null;
+        })) || null;
+
+    if (guildData == null)
+      return error(
+        'An invalid UUID was provided, or that player is not in a guild.'
+      );
 
     return new Guild(guildData.guild);
   }
@@ -135,7 +148,7 @@ class Client {
         endpoint: `/resources/achievements`,
       })
       .catch(err => {
-        throw new Error(chalk.red.bold(err.response.data.cause));
+        return error(err.response.data.cause);
       });
 
     return achievementData;
@@ -147,7 +160,7 @@ class Client {
         endpoint: `/resources/challenges`,
       })
       .catch(err => {
-        throw new Error(chalk.red.bold(err.response.data.cause));
+        return error(err.response.data.cause);
       });
 
     return challengeData;
@@ -159,7 +172,7 @@ class Client {
         endpoint: `/resources/quests`,
       })
       .catch(err => {
-        throw new Error(chalk.red.bold(err.response.data.cause));
+        return error(err.response.data.cause);
       });
 
     return questData;
@@ -171,7 +184,7 @@ class Client {
         endpoint: `/resources/guilds/achievements`,
       })
       .catch(err => {
-        throw new Error(chalk.red.bold(err.response.data.cause));
+        return error(err.response.data.cause);
       });
 
     return achievementData;
@@ -185,7 +198,7 @@ class Client {
         endpoint: `/resources/vanity/pets`,
       })
       .catch(err => {
-        throw new Error(chalk.red.bold(err.response.data.cause));
+        return error(err.response.data.cause);
       });
 
     return petData;
@@ -197,7 +210,7 @@ class Client {
         endpoint: `/resources/vanity/companions`,
       })
       .catch(err => {
-        throw new Error(chalk.red.bold(err.response.data.cause));
+        return error(err.response.data.cause);
       });
 
     return companionData;
@@ -211,7 +224,7 @@ class Client {
         endpoint: `/resources/skyblock/collections`,
       })
       .catch(err => {
-        throw new Error(chalk.red.bold(err.response.data.cause));
+        return error(err.response.data.cause);
       });
 
     return collectionData;
@@ -223,7 +236,7 @@ class Client {
         endpoint: `/resources/skyblock/skills`,
       })
       .catch(err => {
-        throw new Error(chalk.red.bold(err.response.data.cause));
+        return error(err.response.data.cause);
       });
 
     return skillData;
@@ -235,7 +248,7 @@ class Client {
         endpoint: `/resources/skyblock/items`,
       })
       .catch(err => {
-        throw new Error(chalk.red.bold(err.response.data.cause));
+        return error(err.response.data.cause);
       });
 
     return itemData;
@@ -247,7 +260,7 @@ class Client {
         endpoint: `/resources/skyblock/election`,
       })
       .catch(err => {
-        throw new Error(chalk.red.bold(err.response.data.cause));
+        return error(err.response.data.cause);
       });
 
     return collectionData;
@@ -259,7 +272,7 @@ class Client {
         endpoint: `/resources/skyblock/bingo`,
       })
       .catch(err => {
-        throw new Error(chalk.red.bold(err.response.data.cause));
+        return error(err.response.data.cause);
       });
 
     return bingoData;
@@ -271,7 +284,7 @@ class Client {
         endpoint: `/skyblock/auctions`,
       })
       .catch(err => {
-        throw new Error(chalk.red.bold(err.response.data.cause));
+        return error(err.response.data.cause);
       });
 
     return auctionData;
@@ -283,7 +296,7 @@ class Client {
         endpoint: `/skyblock/auctions_ended`,
       })
       .catch(err => {
-        throw new Error(chalk.red.bold(err.response.data.cause));
+        return error(err.response.data.cause);
       });
 
     return auctionData;
@@ -295,7 +308,7 @@ class Client {
         endpoint: `/skyblock/bazaar`,
       })
       .catch(err => {
-        throw new Error(chalk.red.bold(err.response.data.cause));
+        return error(err.response.data.cause);
       });
 
     return bazaarData;
@@ -307,7 +320,7 @@ class Client {
         endpoint: `/skyblock/news?key=${this.apiKey}`,
       })
       .catch(err => {
-        throw new Error(chalk.red.bold(err.response.data.cause));
+        return error(err.response.data.cause);
       });
 
     return newsData;
@@ -319,7 +332,7 @@ class Client {
         endpoint: `/skyblock/auction?key=${this.apiKey}&uuid=${uuid}`,
       })
       .catch(err => {
-        throw new Error(chalk.red.bold(err.response.data.cause));
+        return error(err.response.data.cause);
       });
 
     return auctionData.auctions;
@@ -331,7 +344,7 @@ class Client {
         endpoint: `/skyblock/auction?key=${this.apiKey}&player=${uuid}`,
       })
       .catch(err => {
-        throw new Error(chalk.red.bold(err.response.data.cause));
+        return error(err.response.data.cause);
       });
 
     return auctionData.auctions;
@@ -343,7 +356,7 @@ class Client {
         endpoint: `/skyblock/auction?key=${this.apiKey}&profile=${uuid}`,
       })
       .catch(err => {
-        throw new Error(chalk.red.bold(err.response.data.cause));
+        return error(err.response.data.cause);
       });
 
     return auctionData.auctions;
@@ -357,7 +370,7 @@ class Client {
         endpoint: `/skyblock/profile?key=${this.apiKey}&profile=${uuid}`,
       })
       .catch(err => {
-        throw new Error(chalk.red.bold(err.response.data.cause));
+        return error(err.response.data.cause);
       });
 
     return profileData.profile;
@@ -369,7 +382,7 @@ class Client {
         endpoint: `/skyblock/profiles?key=${this.apiKey}&uuid=${uuid}`,
       })
       .catch(err => {
-        throw new Error(chalk.red.bold(err.response.data.cause));
+        return error(err.response.data.cause);
       });
 
     return profileData.profiles;
@@ -382,7 +395,7 @@ class Client {
         endpoint: `/skyblock/bingo?key=${this.apiKey}&uuid=${uuid}`,
       })
       .catch(err => {
-        throw new Error(chalk.red.bold(err.response.data.cause));
+        return error(err.response.data.cause);
       });
 
     return bingoData.events;
@@ -396,7 +409,7 @@ class Client {
         endpoint: `/boosters?key=${this.apiKey}`,
       })
       .catch(err => {
-        throw new Error(chalk.red.bold(err.response.data.cause));
+        return error(err.response.data.cause);
       });
 
     return boosterData.boosters;
@@ -408,7 +421,7 @@ class Client {
         endpoint: `/counts?key=${this.apiKey}`,
       })
       .catch(err => {
-        throw new Error(chalk.red.bold(err.response.data.cause));
+        return error(err.response.data.cause);
       });
 
     return countData.games;
@@ -420,7 +433,7 @@ class Client {
         endpoint: `/leaderboards?key=${this.apiKey}`,
       })
       .catch(err => {
-        throw new Error(chalk.red.bold(err.response.data.cause));
+        return error(err.response.data.cause);
       });
 
     return leaderboardData.leaderboards;
@@ -432,7 +445,7 @@ class Client {
         endpoint: `/punishmentstats?key=${this.apiKey}`,
       })
       .catch(err => {
-        throw new Error(chalk.red.bold(err.response.data.cause));
+        return error(err.response.data.cause);
       });
 
     return punishmentData;
